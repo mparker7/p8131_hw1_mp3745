@@ -24,3 +24,98 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
+
+## PROBLEM 1
+# i)
+
+Create dataframe
+```{r}
+# Covariates
+dose = 0:4
+
+# Response
+resp = tibble(
+  num_dead = c(2, 8, 15, 23, 27),
+  num_alive = 30 - num_dead
+) %>% 
+  as.matrix() 
+```
+
+Logistic models with grouped data (get estimate of beta and deviance)
+```{r}
+# Logit
+fit_logit = 
+  glm(resp ~ dose, 
+      family = binomial(link = 'logit'))
+
+summary(fit_logit) 
+
+
+# Probit
+fit_probit = 
+  glm(resp ~ dose, 
+      family = binomial(link = 'probit'))
+
+summary(fit_probit)
+
+
+# cloglog
+fit_cloglog = 
+  glm(resp ~ dose, 
+      family = binomial(link = 'cloglog'))
+
+summary(fit_cloglog)
+```
+
+Confidence intervals
+```{r}
+# logit
+ci_logit = fit_logit %>% 
+  broom::tidy() %>% 
+  mutate(
+    lower = estimate - 1.96 * std.error,
+    upper = estimate + 1.96 * std.error
+  )
+
+# probit
+ci_probit = fit_probit %>% 
+  broom::tidy() %>% 
+  mutate(
+    lower = estimate - 1.96 * std.error,
+    upper = estimate + 1.96 * std.error
+  )
+
+# cloglog
+# probit
+ci_cloglog = fit_cloglog %>% 
+  broom::tidy() %>% 
+  mutate(
+    lower = estimate - 1.96 * std.error,
+    upper = estimate + 1.96 * std.error
+  )
+```
+
+Prob of dying given x = 0.01
+```{r}
+# value to predict
+newdata = data.frame(
+  dose = 0.1
+)
+
+# logit
+predict(fit_logit, newdata = newdata, type = "response")
+
+# probit
+predict(fit_probit, newdata = newdata, type = "response")
+
+# cloglog
+predict(fit_cloglog, newdata = newdata, type = "response")
+
+```
+
+
+
+
+
+
+

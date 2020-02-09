@@ -370,7 +370,150 @@ summary {
 </div>
 
 
+<div id="problem-1" class="section level2">
+<h2>PROBLEM 1</h2>
+</div>
+<div id="i" class="section level1">
+<h1>i)</h1>
+<p>Create dataframe</p>
+<pre class="r"><code># Covariates
+dose = 0:4
 
+# Response
+resp = tibble(
+  num_dead = c(2, 8, 15, 23, 27),
+  num_alive = 30 - num_dead
+) %&gt;% 
+  as.matrix() </code></pre>
+<p>Logistic models with grouped data (get estimate of beta and deviance)</p>
+<pre class="r"><code># Logit
+fit_logit = 
+  glm(resp ~ dose, 
+      family = binomial(link = 'logit'))
+
+summary(fit_logit) </code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = resp ~ dose, family = binomial(link = &quot;logit&quot;))
+## 
+## Deviance Residuals: 
+##       1        2        3        4        5  
+## -0.4510   0.3597   0.0000   0.0643  -0.2045  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -2.3238     0.4179  -5.561 2.69e-08 ***
+## dose          1.1619     0.1814   6.405 1.51e-10 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 64.76327  on 4  degrees of freedom
+## Residual deviance:  0.37875  on 3  degrees of freedom
+## AIC: 20.854
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code># Probit
+fit_probit = 
+  glm(resp ~ dose, 
+      family = binomial(link = 'probit'))
+
+summary(fit_probit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = resp ~ dose, family = binomial(link = &quot;probit&quot;))
+## 
+## Deviance Residuals: 
+##        1         2         3         4         5  
+## -0.35863   0.27493   0.01893   0.18230  -0.27545  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.37709    0.22781  -6.045 1.49e-09 ***
+## dose         0.68638    0.09677   7.093 1.31e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 64.76327  on 4  degrees of freedom
+## Residual deviance:  0.31367  on 3  degrees of freedom
+## AIC: 20.789
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code># cloglog
+fit_cloglog = 
+  glm(resp ~ dose, 
+      family = binomial(link = 'cloglog'))
+
+summary(fit_cloglog)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = resp ~ dose, family = binomial(link = &quot;cloglog&quot;))
+## 
+## Deviance Residuals: 
+##       1        2        3        4        5  
+## -1.0831   0.2132   0.4985   0.5588  -0.6716  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -1.9942     0.3126  -6.378 1.79e-10 ***
+## dose          0.7468     0.1094   6.824 8.86e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 64.7633  on 4  degrees of freedom
+## Residual deviance:  2.2305  on 3  degrees of freedom
+## AIC: 22.706
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>Confidence intervals</p>
+<pre class="r"><code># logit
+ci_logit = fit_logit %&gt;% 
+  broom::tidy() %&gt;% 
+  mutate(
+    lower = estimate - 1.96 * std.error,
+    upper = estimate + 1.96 * std.error
+  )
+
+# probit
+ci_probit = fit_probit %&gt;% 
+  broom::tidy() %&gt;% 
+  mutate(
+    lower = estimate - 1.96 * std.error,
+    upper = estimate + 1.96 * std.error
+  )
+
+# cloglog
+# probit
+ci_cloglog = fit_cloglog %&gt;% 
+  broom::tidy() %&gt;% 
+  mutate(
+    lower = estimate - 1.96 * std.error,
+    upper = estimate + 1.96 * std.error
+  )</code></pre>
+<p>Prob of dying given x = 0.01</p>
+<pre class="r"><code># value to predict
+newdata = data.frame(
+  dose = 0.1
+)
+
+# logit
+predict(fit_logit, newdata = newdata, type = &quot;response&quot;)</code></pre>
+<pre><code>##          1 
+## 0.09907005</code></pre>
+<pre class="r"><code># probit
+predict(fit_probit, newdata = newdata, type = &quot;response&quot;)</code></pre>
+<pre><code>##          1 
+## 0.09535964</code></pre>
+<pre class="r"><code># cloglog
+predict(fit_cloglog, newdata = newdata, type = &quot;response&quot;)</code></pre>
+<pre><code>##         1 
+## 0.1364338</code></pre>
+</div>
 
 
 
