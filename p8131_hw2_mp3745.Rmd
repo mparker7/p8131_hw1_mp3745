@@ -99,7 +99,7 @@ Prob of dying given x = 0.01
 ```{r}
 # value to predict
 newdata = data.frame(
-  dose = 0.1
+  dose = 0.01
 )
 
 # logit

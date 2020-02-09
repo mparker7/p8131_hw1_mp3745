@@ -498,21 +498,21 @@ ci_cloglog = fit_cloglog %&gt;%
 <p>Prob of dying given x = 0.01</p>
 <pre class="r"><code># value to predict
 newdata = data.frame(
-  dose = 0.1
+  dose = 0.01
 )
 
 # logit
 predict(fit_logit, newdata = newdata, type = &quot;response&quot;)</code></pre>
 <pre><code>##          1 
-## 0.09907005</code></pre>
+## 0.09011997</code></pre>
 <pre class="r"><code># probit
 predict(fit_probit, newdata = newdata, type = &quot;response&quot;)</code></pre>
-<pre><code>##          1 
-## 0.09535964</code></pre>
+<pre><code>##         1 
+## 0.0853078</code></pre>
 <pre class="r"><code># cloglog
 predict(fit_cloglog, newdata = newdata, type = &quot;response&quot;)</code></pre>
 <pre><code>##         1 
-## 0.1364338</code></pre>
+## 0.1281601</code></pre>
 </div>
 
 
