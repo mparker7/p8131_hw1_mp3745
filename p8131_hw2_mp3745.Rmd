@@ -36,7 +36,7 @@ dose = 0:4
 # Response
 resp = tibble(
   num_dead = c(2, 8, 15, 23, 27),
-  num_alive = 30 - num_dead
+  num_total = 30 - num_dead
 ) %>% 
   as.matrix() 
 ```
@@ -112,6 +112,79 @@ predict(fit_probit, newdata = newdata, type = "response")
 predict(fit_cloglog, newdata = newdata, type = "response")
 
 ```
+
+
+## Problem 2
+
+Enter in the data
+```{r}
+prob2_data = tibble(
+  amount = seq(from = 10000, to = 90000, by = 5000),
+  offers = c(4, 6, 10, 12, 39, 36, 22, 14, 10, 12, 8, 9, 3, 1, 5, 2, 1),
+  enrolls = c(0, 2, 4, 2, 12, 14, 10, 7, 5, 5, 3, 5, 2, 0, 4, 2, 1),
+  non_enrolls = offers - enrolls
+)
+
+# Predictor
+amount = prob2_data %>% 
+  select(amount) %>% 
+  as.matrix()
+
+# Response
+enrolls = prob2_data %>% 
+  select(enrolls, non_enrolls) %>% 
+  as.matrix()
+```
+
+## i)
+
+Logistic model
+```{r}
+prob2_fit = 
+  glm(enrolls ~ amount, 
+      family = binomial(link = 'logit'))
+
+summary(prob2_fit) 
+```
+
+Check goodness of fit
+```{r}
+# Deviance
+prob2_dev = prob2_fit$deviance
+
+# compare with chisq(17-2)
+fit_pval = 1 - pchisq(prob2_dev, 15) # fit is not good, later will see why (over dispersion; lack of covariate)
+```
+
+It looks like this model may do a good job of fitting the data. The p-value from the deviance test for goodness of fit is `r fit_pval` > 0.05. This means we fail to reject the null hypothesis of the model being a good fit.
+
+
+## ii)
+Get 95% confidence interval
+```{r}
+# Tidy output
+prob2_fit_tidy = 
+  prob2_fit %>% 
+  broom::tidy()
+
+# 95% CI
+ci_amount = prob2_fit_tidy %>% 
+  mutate(
+    lower = estimate - 1.96 * std.error,
+    upper = estimate + 1.96 * std.error
+  ) %>% 
+  filter(term == "amount") %>% 
+  select(estimate, lower, upper)
+```
+
+`r ci_amount %>% select(estimate)` is the log odds ratio of enrollment per increase of $5,000 in scholarship amount. The 95% CI is (`r ci_amount %>% select(lower)`, `r ci_amount %>% select(upper)`).
+
+
+## iii)
+
+
+
+
 
 
 

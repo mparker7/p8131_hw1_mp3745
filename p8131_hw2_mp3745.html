@@ -12,7 +12,7 @@
 
 <meta name="author" content="Matthew Parker" />
 
-<meta name="date" content="2020-02-09" />
+<meta name="date" content="2020-02-11" />
 
 <title>p8105_hw3_mp3745</title>
 
@@ -365,7 +365,7 @@ summary {
 
 <h1 class="title toc-ignore">p8105_hw3_mp3745</h1>
 <h4 class="author">Matthew Parker</h4>
-<h4 class="date">2020-02-09</h4>
+<h4 class="date">2020-02-11</h4>
 
 </div>
 
@@ -382,7 +382,7 @@ dose = 0:4
 # Response
 resp = tibble(
   num_dead = c(2, 8, 15, 23, 27),
-  num_alive = 30 - num_dead
+  num_total = 30 - num_dead
 ) %&gt;% 
   as.matrix() </code></pre>
 <p>Logistic models with grouped data (get estimate of beta and deviance)</p>
@@ -513,6 +513,85 @@ predict(fit_probit, newdata = newdata, type = &quot;response&quot;)</code></pre>
 predict(fit_cloglog, newdata = newdata, type = &quot;response&quot;)</code></pre>
 <pre><code>##         1 
 ## 0.1281601</code></pre>
+<div id="problem-2" class="section level2">
+<h2>Problem 2</h2>
+<p>Enter in the data</p>
+<pre class="r"><code>prob2_data = tibble(
+  amount = seq(from = 10000, to = 90000, by = 5000),
+  offers = c(4, 6, 10, 12, 39, 36, 22, 14, 10, 12, 8, 9, 3, 1, 5, 2, 1),
+  enrolls = c(0, 2, 4, 2, 12, 14, 10, 7, 5, 5, 3, 5, 2, 0, 4, 2, 1),
+  non_enrolls = offers - enrolls
+)
+
+# Predictor
+amount = prob2_data %&gt;% 
+  select(amount) %&gt;% 
+  as.matrix()
+
+# Response
+enrolls = prob2_data %&gt;% 
+  select(enrolls, non_enrolls) %&gt;% 
+  as.matrix()</code></pre>
+</div>
+<div id="i-1" class="section level2">
+<h2>i)</h2>
+<p>Logistic model</p>
+<pre class="r"><code>prob2_fit = 
+  glm(enrolls ~ amount, 
+      family = binomial(link = 'logit'))
+
+summary(prob2_fit) </code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = enrolls ~ amount, family = binomial(link = &quot;logit&quot;))
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.4735  -0.6731   0.1583   0.5285   1.1275  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.648e+00  4.214e-01  -3.910 9.25e-05 ***
+## amount       3.095e-05  9.680e-06   3.197  0.00139 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 21.617  on 16  degrees of freedom
+## Residual deviance: 10.613  on 15  degrees of freedom
+## AIC: 51.078
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<p>Check goodness of fit</p>
+<pre class="r"><code># Deviance
+prob2_dev = prob2_fit$deviance
+
+# compare with chisq(17-2)
+fit_pval = 1 - pchisq(prob2_dev, 15) # fit is not good, later will see why (over dispersion; lack of covariate)</code></pre>
+<p>It looks like this model may do a good job of fitting the data. The p-value from the deviance test for goodness of fit is 0.7795345 &gt; 0.05. This means we fail to reject the null hypothesis of the model being a good fit.</p>
+</div>
+<div id="ii" class="section level2">
+<h2>ii)</h2>
+<p>Get 95% confidence interval</p>
+<pre class="r"><code># Tidy output
+prob2_fit_tidy = 
+  prob2_fit %&gt;% 
+  broom::tidy()
+
+# 95% CI
+ci_amount = prob2_fit_tidy %&gt;% 
+  mutate(
+    lower = estimate - 1.96 * std.error,
+    upper = estimate + 1.96 * std.error
+  ) %&gt;% 
+  filter(term == &quot;amount&quot;) %&gt;% 
+  select(estimate, lower, upper)</code></pre>
+<p>3.095042610^{-5} is the log odds ratio of enrollment per increase of $5,000 in scholarship amount. The 95% CI is (1.197810510^{-5}, 4.992274710^{-5}).</p>
+</div>
+<div id="iii" class="section level2">
+<h2>iii)</h2>
+</div>
 </div>
 
 
