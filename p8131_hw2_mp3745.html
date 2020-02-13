@@ -679,10 +679,32 @@ ci_amount = prob2_fit_tidy %&gt;%
   ) %&gt;% 
   filter(term == &quot;amount&quot;) %&gt;% 
   select(estimate, lower, upper)</code></pre>
-<p>3.095042610^{-5} is the log odds ratio of enrollment per increase of $5,000 in scholarship amount. The 95% CI is (1.197810510^{-5}, 4.992274710^{-5}).</p>
+<p>3.095042610^{-5} is the change in log odds of enrollment per increase of $5,000 in scholarship amount. The 95% CI is (1.197810510^{-5}, 4.992274710^{-5}).</p>
 </div>
 <div id="iii" class="section level2">
 <h2>iii)</h2>
+<pre class="r"><code># coefficients
+prob2_beta0 = prob2_fit$coefficients[1]
+prob2_beta1 = prob2_fit$coefficients[2]
+
+# fisher information inverse
+prob2_betacov = vcov(prob2_fit) 
+
+# point estimate
+prob2_x0fit = (log(2/3) - prob2_beta0)/prob2_beta1
+
+# asymptotic variance
+prob2_varx0 = prob2_betacov[1,1]/(prob2_beta1^2) + prob2_betacov[2,2]*((prob2_beta0 - log(2/3))^2)/(prob2_beta1^4) -
+              2*prob2_betacov[1,2]*(prob2_beta0 - log(2/3))/(prob2_beta1^3)
+
+# point estimate and se 
+c(prob2_x0fit, sqrt(prob2_varx0))</code></pre>
+<pre><code>## (Intercept)      amount 
+##   40134.286    4873.174</code></pre>
+<pre class="r"><code># 95% CI 
+(prob2_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(prob2_varx0))</code></pre>
+<pre><code>## [1] 30583.04 49685.53</code></pre>
+<p>The point estimate for scholarship amount to provide to get 40% yield rate is $40134.29 with a 95% CI of ($30583.04, $49685.53)</p>
 </div>
 
 

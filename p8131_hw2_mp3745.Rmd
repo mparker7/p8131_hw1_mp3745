@@ -268,10 +268,34 @@ ci_amount = prob2_fit_tidy %>%
   select(estimate, lower, upper)
 ```
 
-`r ci_amount %>% select(estimate)` is the log odds ratio of enrollment per increase of $5,000 in scholarship amount. The 95% CI is (`r ci_amount %>% select(lower)`, `r ci_amount %>% select(upper)`).
+`r ci_amount %>% select(estimate)` is the change in log odds of enrollment per increase of $5,000 in scholarship amount. The 95% CI is (`r ci_amount %>% select(lower)`, `r ci_amount %>% select(upper)`).
 
 
 ## iii)
+
+```{r}
+# coefficients
+prob2_beta0 = prob2_fit$coefficients[1]
+prob2_beta1 = prob2_fit$coefficients[2]
+
+# fisher information inverse
+prob2_betacov = vcov(prob2_fit) 
+
+# point estimate
+prob2_x0fit = (log(2/3) - prob2_beta0)/prob2_beta1
+
+# asymptotic variance
+prob2_varx0 = prob2_betacov[1,1]/(prob2_beta1^2) + prob2_betacov[2,2]*((prob2_beta0 - log(2/3))^2)/(prob2_beta1^4) -
+              2*prob2_betacov[1,2]*(prob2_beta0 - log(2/3))/(prob2_beta1^3)
+
+# point estimate and se 
+c(prob2_x0fit, sqrt(prob2_varx0))
+
+# 95% CI 
+(prob2_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(prob2_varx0))
+```
+
+The point estimate for scholarship amount to provide to get 40% yield rate is \$`r format(prob2_x0fit, scientific = FALSE)` with a 95% CI of (\$`r format(prob2_x0fit + qnorm(0.025)*sqrt(prob2_varx0), scientific = FALSE)`, \$`r format(prob2_x0fit - qnorm(0.025)*sqrt(prob2_varx0), scientific = FALSE)`)
 
 
 
