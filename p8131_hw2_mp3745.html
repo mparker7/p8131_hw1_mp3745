@@ -12,7 +12,7 @@
 
 <meta name="author" content="Matthew Parker" />
 
-<meta name="date" content="2020-02-11" />
+<meta name="date" content="2020-02-13" />
 
 <title>p8105_hw3_mp3745</title>
 
@@ -365,16 +365,15 @@ summary {
 
 <h1 class="title toc-ignore">p8105_hw3_mp3745</h1>
 <h4 class="author">Matthew Parker</h4>
-<h4 class="date">2020-02-11</h4>
+<h4 class="date">2020-02-13</h4>
 
 </div>
 
 
 <div id="problem-1" class="section level2">
 <h2>PROBLEM 1</h2>
-</div>
-<div id="i" class="section level1">
-<h1>i)</h1>
+<div id="i" class="section level3">
+<h3>i)</h3>
 <p>Create dataframe</p>
 <pre class="r"><code># Covariates
 dose = 0:4
@@ -513,6 +512,99 @@ predict(fit_probit, newdata = newdata, type = &quot;response&quot;)</code></pre>
 predict(fit_cloglog, newdata = newdata, type = &quot;response&quot;)</code></pre>
 <pre><code>##         1 
 ## 0.1281601</code></pre>
+</div>
+<div id="ii" class="section level3">
+<h3>ii)</h3>
+<div id="logit" class="section level4">
+<h4>logit</h4>
+<pre class="r"><code># coefficients
+logit_beta0 = fit_logit$coefficients[1]
+logit_beta1 = fit_logit$coefficients[2]
+
+# fisher information inverse
+logit_betacov = vcov(fit_logit) 
+
+# point estimate of ln(LD50)
+logit_x0fit = -logit_beta0/logit_beta1
+
+# point estimate of LD50
+exp(logit_x0fit) </code></pre>
+<pre><code>## (Intercept) 
+##    7.389056</code></pre>
+<pre class="r"><code># asymptotic variance
+logit_varx0 = logit_betacov[1,1]/(logit_beta1^2) + logit_betacov[2,2]*(logit_beta0^2)/(logit_beta1^4) -
+              2*logit_betacov[1,2]*logit_beta0/(logit_beta1^3)
+
+# point estimate and se for ln(dose)
+c(logit_x0fit, sqrt(logit_varx0))</code></pre>
+<pre><code>## (Intercept)        dose 
+##   2.0000000   0.1784367</code></pre>
+<pre class="r"><code># 95% CI for LD50
+exp((logit_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(logit_varx0))) </code></pre>
+<pre><code>## [1]  5.208388 10.482734</code></pre>
+<p>The point estimate for LD50 is 7.3890561 with a 95% CI of (5.2083884, 10.482734)</p>
+</div>
+<div id="probit" class="section level4">
+<h4>Probit</h4>
+<pre class="r"><code># coefficients
+probit_beta0 = fit_probit$coefficients[1]
+probit_beta1 = fit_probit$coefficients[2]
+
+# fisher information inverse
+probit_betacov = vcov(fit_probit) 
+
+# point estimate of ln(LD50)
+probit_x0fit = -probit_beta0/probit_beta1
+
+# point estimate of LD50
+exp(probit_x0fit) </code></pre>
+<pre><code>## (Intercept) 
+##     7.43583</code></pre>
+<pre class="r"><code># asymptotic variance
+probit_varx0 = probit_betacov[1,1]/(probit_beta1^2) + probit_betacov[2,2]*(probit_beta0^2)/(probit_beta1^4) -
+              2*probit_betacov[1,2]*probit_beta0/(probit_beta1^3)
+
+# point estimate and se for ln(dose)
+c(probit_x0fit, sqrt(probit_varx0))</code></pre>
+<pre><code>## (Intercept)        dose 
+##   2.0063102   0.1742755</code></pre>
+<pre class="r"><code># 95% CI for LD50
+exp((probit_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(probit_varx0))) </code></pre>
+<pre><code>## [1]  5.284281 10.463405</code></pre>
+<p>The point estimate for LD50 is 7.4358301 with a 95% CI of (5.2842806, 10.4634053)</p>
+</div>
+<div id="cloglog" class="section level4">
+<h4>Cloglog</h4>
+<pre class="r"><code># coefficients
+cloglog_beta0 = fit_cloglog$coefficients[1]
+cloglog_beta1 = fit_cloglog$coefficients[2]
+
+# fisher information inverse
+cloglog_betacov = vcov(fit_cloglog) 
+
+# point estimate of ln(LD50)
+cloglog_x0fit = (log(-log(0.5)) - cloglog_beta0)/cloglog_beta1
+
+# point estimate of LD50
+exp(cloglog_x0fit) </code></pre>
+<pre><code>## (Intercept) 
+##    8.841249</code></pre>
+<pre class="r"><code># asymptotic variance
+cloglog_varx0 = cloglog_betacov[1,1]/(cloglog_beta1^2) + 
+              cloglog_betacov[2,2]*((cloglog_beta0 - log(-log(0.5)))^2)/(cloglog_beta1^4) -
+              2*cloglog_betacov[1,2]*(cloglog_beta0 - log(-log(0.5)))/(cloglog_beta1^3)
+
+# point estimate and se for ln(dose)
+c(cloglog_x0fit, sqrt(cloglog_varx0))</code></pre>
+<pre><code>## (Intercept)        dose 
+##   2.1794281   0.1845721</code></pre>
+<pre class="r"><code># 95% CI for LD50
+exp((cloglog_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(cloglog_varx0))) </code></pre>
+<pre><code>## [1]  6.157517 12.694677</code></pre>
+<p>The point estimate for LD50 is 8.8412489 with a 95% CI of (6.1575167, 12.6946765)</p>
+</div>
+</div>
+</div>
 <div id="problem-2" class="section level2">
 <h2>Problem 2</h2>
 <p>Enter in the data</p>
@@ -571,7 +663,7 @@ prob2_dev = prob2_fit$deviance
 fit_pval = 1 - pchisq(prob2_dev, 15) # fit is not good, later will see why (over dispersion; lack of covariate)</code></pre>
 <p>It looks like this model may do a good job of fitting the data. The p-value from the deviance test for goodness of fit is 0.7795345 &gt; 0.05. This means we fail to reject the null hypothesis of the model being a good fit.</p>
 </div>
-<div id="ii" class="section level2">
+<div id="ii-1" class="section level2">
 <h2>ii)</h2>
 <p>Get 95% confidence interval</p>
 <pre class="r"><code># Tidy output
@@ -591,7 +683,6 @@ ci_amount = prob2_fit_tidy %&gt;%
 </div>
 <div id="iii" class="section level2">
 <h2>iii)</h2>
-</div>
 </div>
 
 

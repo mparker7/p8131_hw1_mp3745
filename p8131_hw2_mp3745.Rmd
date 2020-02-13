@@ -26,7 +26,7 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 ## PROBLEM 1
-# i)
+### i)
 
 Create dataframe
 ```{r}
@@ -112,6 +112,97 @@ predict(fit_probit, newdata = newdata, type = "response")
 predict(fit_cloglog, newdata = newdata, type = "response")
 
 ```
+
+
+### ii)
+
+#### logit
+```{r}
+# coefficients
+logit_beta0 = fit_logit$coefficients[1]
+logit_beta1 = fit_logit$coefficients[2]
+
+# fisher information inverse
+logit_betacov = vcov(fit_logit) 
+
+# point estimate of ln(LD50)
+logit_x0fit = -logit_beta0/logit_beta1
+
+# point estimate of LD50
+exp(logit_x0fit) 
+
+# asymptotic variance
+logit_varx0 = logit_betacov[1,1]/(logit_beta1^2) + logit_betacov[2,2]*(logit_beta0^2)/(logit_beta1^4) -
+              2*logit_betacov[1,2]*logit_beta0/(logit_beta1^3)
+
+# point estimate and se for ln(dose)
+c(logit_x0fit, sqrt(logit_varx0))
+
+# 95% CI for LD50
+exp((logit_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(logit_varx0))) 
+```
+
+The point estimate for LD50 is `r exp(logit_x0fit)` with a 95% CI of (`r exp(logit_x0fit + qnorm(0.025)*sqrt(logit_varx0))`, `r exp(logit_x0fit - qnorm(0.025)*sqrt(logit_varx0))`)
+
+
+#### Probit
+```{r}
+# coefficients
+probit_beta0 = fit_probit$coefficients[1]
+probit_beta1 = fit_probit$coefficients[2]
+
+# fisher information inverse
+probit_betacov = vcov(fit_probit) 
+
+# point estimate of ln(LD50)
+probit_x0fit = -probit_beta0/probit_beta1
+
+# point estimate of LD50
+exp(probit_x0fit) 
+
+# asymptotic variance
+probit_varx0 = probit_betacov[1,1]/(probit_beta1^2) + probit_betacov[2,2]*(probit_beta0^2)/(probit_beta1^4) -
+              2*probit_betacov[1,2]*probit_beta0/(probit_beta1^3)
+
+# point estimate and se for ln(dose)
+c(probit_x0fit, sqrt(probit_varx0))
+
+# 95% CI for LD50
+exp((probit_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(probit_varx0))) 
+```
+
+The point estimate for LD50 is `r exp(probit_x0fit)` with a 95% CI of (`r exp(probit_x0fit + qnorm(0.025)*sqrt(probit_varx0))`, `r exp(probit_x0fit - qnorm(0.025)*sqrt(probit_varx0))`)
+
+
+#### Cloglog
+```{r}
+# coefficients
+cloglog_beta0 = fit_cloglog$coefficients[1]
+cloglog_beta1 = fit_cloglog$coefficients[2]
+
+# fisher information inverse
+cloglog_betacov = vcov(fit_cloglog) 
+
+# point estimate of ln(LD50)
+cloglog_x0fit = (log(-log(0.5)) - cloglog_beta0)/cloglog_beta1
+
+# point estimate of LD50
+exp(cloglog_x0fit) 
+
+# asymptotic variance
+cloglog_varx0 = cloglog_betacov[1,1]/(cloglog_beta1^2) + 
+              cloglog_betacov[2,2]*((cloglog_beta0 - log(-log(0.5)))^2)/(cloglog_beta1^4) -
+              2*cloglog_betacov[1,2]*(cloglog_beta0 - log(-log(0.5)))/(cloglog_beta1^3)
+
+# point estimate and se for ln(dose)
+c(cloglog_x0fit, sqrt(cloglog_varx0))
+
+# 95% CI for LD50
+exp((cloglog_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(cloglog_varx0))) 
+```
+
+The point estimate for LD50 is `r exp(cloglog_x0fit)` with a 95% CI of (`r exp(cloglog_x0fit + qnorm(0.025)*sqrt(cloglog_varx0))`, `r exp(cloglog_x0fit - qnorm(0.025)*sqrt(cloglog_varx0))`)
+
 
 
 ## Problem 2
