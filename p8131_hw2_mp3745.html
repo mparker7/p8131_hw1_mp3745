@@ -501,17 +501,57 @@ newdata = data.frame(
 )
 
 # logit
-predict(fit_logit, newdata = newdata, type = &quot;response&quot;)</code></pre>
-<pre><code>##          1 
-## 0.09011997</code></pre>
-<pre class="r"><code># probit
-predict(fit_probit, newdata = newdata, type = &quot;response&quot;)</code></pre>
-<pre><code>##         1 
-## 0.0853078</code></pre>
-<pre class="r"><code># cloglog
-predict(fit_cloglog, newdata = newdata, type = &quot;response&quot;)</code></pre>
-<pre><code>##         1 
-## 0.1281601</code></pre>
+pred_logit = predict(fit_logit, newdata = newdata, type = &quot;response&quot;)
+
+# probit
+pred_probit = predict(fit_probit, newdata = newdata, type = &quot;response&quot;)
+
+# cloglog
+pred_cloglog = predict(fit_cloglog, newdata = newdata, type = &quot;response&quot;)</code></pre>
+<pre class="r"><code>tibble(
+  model = c(&quot;Logit&quot;, &quot;Probit&quot;, &quot;c-log-log&quot;),
+  Estimate_of_β = c(fit_logit$coefficients[2], fit_probit$coefficients[2], fit_cloglog$coefficients[2]),
+  CI_for_β = c(str_c(&quot;(&quot;, round(ci_logit$lower[2], 3), &quot;, &quot;, round(ci_logit$upper[2], 3), &quot;)&quot;), 
+               str_c(&quot;(&quot;, round(ci_probit$lower[2], 3), &quot;, &quot;, round(ci_probit$upper[2], 3), &quot;)&quot;),
+               str_c(&quot;(&quot;, round(ci_cloglog$lower[2], 3), &quot;, &quot;, round(ci_cloglog$upper[2], 3), &quot;)&quot;)),
+  Deviance = c(round(fit_logit$deviance, 3), round(fit_probit$deviance, 3), round(fit_cloglog$deviance, 3)),
+  p_dying_x_0.01 = c(pred_logit, pred_probit, pred_cloglog)
+) %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="right">Estimate_of_β</th>
+<th align="left">CI_for_β</th>
+<th align="right">Deviance</th>
+<th align="right">p_dying_x_0.01</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Logit</td>
+<td align="right">1.1618949</td>
+<td align="left">(0.806, 1.517)</td>
+<td align="right">0.379</td>
+<td align="right">0.0901200</td>
+</tr>
+<tr class="even">
+<td align="left">Probit</td>
+<td align="right">0.6863805</td>
+<td align="left">(0.497, 0.876)</td>
+<td align="right">0.314</td>
+<td align="right">0.0853078</td>
+</tr>
+<tr class="odd">
+<td align="left">c-log-log</td>
+<td align="right">0.7468193</td>
+<td align="left">(0.532, 0.961)</td>
+<td align="right">2.230</td>
+<td align="right">0.1281601</td>
+</tr>
+</tbody>
+</table>
+<p>The logit model has the highest estimate for β, with the probit model having the lowest. All estimates of β are positive, which means the risk of dying increases with dose. For the logit model, the interpretation is that the log odds ratio per 1 unit change in dose is 1.1619. All three confidence intervals do not contain zero, which further suggests the risk of dying increases with dose. The probit model had the smallest deviance and the c-log-log model had the highest deviance. This suggests that the logit and probit models may fit the data better. All three models provide similar estimates for the probability of dying given the dose is 0.01, but the c-log-log model has the highest estimate at 0.13.</p>
 </div>
 <div id="ii" class="section level3">
 <h3>ii)</h3>

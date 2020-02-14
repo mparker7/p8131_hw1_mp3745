@@ -103,15 +103,31 @@ newdata = data.frame(
 )
 
 # logit
-predict(fit_logit, newdata = newdata, type = "response")
+pred_logit = predict(fit_logit, newdata = newdata, type = "response")
 
 # probit
-predict(fit_probit, newdata = newdata, type = "response")
+pred_probit = predict(fit_probit, newdata = newdata, type = "response")
 
 # cloglog
-predict(fit_cloglog, newdata = newdata, type = "response")
+pred_cloglog = predict(fit_cloglog, newdata = newdata, type = "response")
 
 ```
+
+
+```{r}
+tibble(
+  model = c("Logit", "Probit", "c-log-log"),
+  Estimate_of_β = c(fit_logit$coefficients[2], fit_probit$coefficients[2], fit_cloglog$coefficients[2]),
+  CI_for_β = c(str_c("(", round(ci_logit$lower[2], 3), ", ", round(ci_logit$upper[2], 3), ")"), 
+               str_c("(", round(ci_probit$lower[2], 3), ", ", round(ci_probit$upper[2], 3), ")"),
+               str_c("(", round(ci_cloglog$lower[2], 3), ", ", round(ci_cloglog$upper[2], 3), ")")),
+  Deviance = c(round(fit_logit$deviance, 3), round(fit_probit$deviance, 3), round(fit_cloglog$deviance, 3)),
+  p_dying_x_0.01 = c(pred_logit, pred_probit, pred_cloglog)
+) %>% knitr::kable()
+```
+
+The logit model has the highest estimate for β, with the probit model having the lowest. All estimates of β are positive, which means the risk of dying increases with dose. For the logit model, the interpretation is that the log odds ratio per 1 unit change in dose is 1.1619. All three confidence intervals do not contain zero, which further suggests the risk of dying increases with dose. The probit model had the smallest deviance and the c-log-log model had the highest deviance. This suggests that the logit and probit models may fit the data better. All three models provide similar estimates for the probability of dying given the dose is 0.01, but the c-log-log model has the highest estimate at 0.13.
+
 
 
 ### ii)
