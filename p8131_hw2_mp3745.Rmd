@@ -2,7 +2,7 @@
 title: "p8105_hw3_mp3745"
 author: "Matthew Parker"
 date: '`r format(Sys.time(), "%Y-%m-%d")`'
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -28,9 +28,9 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ## PROBLEM 1
 ### i)
 
-Create dataframe
+Enter data
 ```{r}
-# Covariates
+# Covariate
 dose = 0:4
 
 # Response
@@ -41,14 +41,12 @@ resp = tibble(
   as.matrix() 
 ```
 
-Logistic models with grouped data (get estimate of beta and deviance)
+Logistic models with grouped data 
 ```{r}
 # Logit
 fit_logit = 
   glm(resp ~ dose, 
       family = binomial(link = 'logit'))
-
-summary(fit_logit) 
 
 
 # Probit
@@ -56,18 +54,14 @@ fit_probit =
   glm(resp ~ dose, 
       family = binomial(link = 'probit'))
 
-summary(fit_probit)
-
 
 # cloglog
 fit_cloglog = 
   glm(resp ~ dose, 
       family = binomial(link = 'cloglog'))
-
-summary(fit_cloglog)
 ```
 
-Confidence intervals
+95% confidence intervals
 ```{r}
 # logit
 ci_logit = fit_logit %>% 
@@ -126,7 +120,7 @@ tibble(
 ) %>% knitr::kable()
 ```
 
-The logit model has the highest estimate for β, with the probit model having the lowest. All estimates of β are positive, which means the risk of dying increases with dose. For the logit model, the interpretation is that the log odds ratio per 1 unit change in dose is 1.1619. All three confidence intervals do not contain zero, which further suggests the risk of dying increases with dose. The probit model had the smallest deviance and the c-log-log model had the highest deviance. This suggests that the logit and probit models may fit the data better. All three models provide similar estimates for the probability of dying given the dose is 0.01, but the c-log-log model has the highest estimate at 0.13.
+The logit model has the highest estimate for β, with the probit model having the lowest. All estimates of β are positive, which means the risk of dying increases with dose. For the logit model, the interpretation is a 1 unit increase in dose causes the log odds of dying to increase by `r fit_logit$coefficients[2]`. All three 95% confidence intervals do not contain zero, which further suggests the risk of dying increases with dose. The probit model had the smallest deviance and the c-log-log model had the highest deviance. This suggests that the logit and probit models may fit the data better. All three models provide similar estimates for the probability of dying given the dose is 0.01, but the c-log-log model has the highest estimate at `r pred_cloglog`.
 
 
 
@@ -144,21 +138,13 @@ logit_betacov = vcov(fit_logit)
 # point estimate of ln(LD50)
 logit_x0fit = -logit_beta0/logit_beta1
 
-# point estimate of LD50
-exp(logit_x0fit) 
-
 # asymptotic variance
 logit_varx0 = logit_betacov[1,1]/(logit_beta1^2) + logit_betacov[2,2]*(logit_beta0^2)/(logit_beta1^4) -
               2*logit_betacov[1,2]*logit_beta0/(logit_beta1^3)
 
-# point estimate and se for ln(dose)
-c(logit_x0fit, sqrt(logit_varx0))
-
-# 95% CI for LD50
-exp((logit_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(logit_varx0))) 
 ```
 
-The point estimate for LD50 is `r exp(logit_x0fit)` with a 95% CI of (`r exp(logit_x0fit + qnorm(0.025)*sqrt(logit_varx0))`, `r exp(logit_x0fit - qnorm(0.025)*sqrt(logit_varx0))`)
+The point estimate for LD50 (median lethal dose) is `r exp(logit_x0fit)` with a 90% CI of (`r exp(logit_x0fit + qnorm(0.05)*sqrt(logit_varx0))`, `r exp(logit_x0fit - qnorm(0.05)*sqrt(logit_varx0))`)
 
 
 #### Probit
@@ -173,21 +159,13 @@ probit_betacov = vcov(fit_probit)
 # point estimate of ln(LD50)
 probit_x0fit = -probit_beta0/probit_beta1
 
-# point estimate of LD50
-exp(probit_x0fit) 
-
 # asymptotic variance
 probit_varx0 = probit_betacov[1,1]/(probit_beta1^2) + probit_betacov[2,2]*(probit_beta0^2)/(probit_beta1^4) -
               2*probit_betacov[1,2]*probit_beta0/(probit_beta1^3)
 
-# point estimate and se for ln(dose)
-c(probit_x0fit, sqrt(probit_varx0))
-
-# 95% CI for LD50
-exp((probit_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(probit_varx0))) 
 ```
 
-The point estimate for LD50 is `r exp(probit_x0fit)` with a 95% CI of (`r exp(probit_x0fit + qnorm(0.025)*sqrt(probit_varx0))`, `r exp(probit_x0fit - qnorm(0.025)*sqrt(probit_varx0))`)
+The point estimate for LD50 is `r exp(probit_x0fit)` with a 90% CI of (`r exp(probit_x0fit + qnorm(0.05)*sqrt(probit_varx0))`, `r exp(probit_x0fit - qnorm(0.05)*sqrt(probit_varx0))`)
 
 
 #### Cloglog
@@ -202,24 +180,15 @@ cloglog_betacov = vcov(fit_cloglog)
 # point estimate of ln(LD50)
 cloglog_x0fit = (log(-log(0.5)) - cloglog_beta0)/cloglog_beta1
 
-# point estimate of LD50
-exp(cloglog_x0fit) 
-
 # asymptotic variance
 cloglog_varx0 = cloglog_betacov[1,1]/(cloglog_beta1^2) + 
               cloglog_betacov[2,2]*((cloglog_beta0 - log(-log(0.5)))^2)/(cloglog_beta1^4) -
               2*cloglog_betacov[1,2]*(cloglog_beta0 - log(-log(0.5)))/(cloglog_beta1^3)
-
-# point estimate and se for ln(dose)
-c(cloglog_x0fit, sqrt(cloglog_varx0))
-
-# 95% CI for LD50
-exp((cloglog_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(cloglog_varx0))) 
 ```
 
-The point estimate for LD50 is `r exp(cloglog_x0fit)` with a 95% CI of (`r exp(cloglog_x0fit + qnorm(0.025)*sqrt(cloglog_varx0))`, `r exp(cloglog_x0fit - qnorm(0.025)*sqrt(cloglog_varx0))`)
+The point estimate for LD50 is `r exp(cloglog_x0fit)` with a 90% CI of (`r exp(cloglog_x0fit + qnorm(0.05)*sqrt(cloglog_varx0))`, `r exp(cloglog_x0fit - qnorm(0.05)*sqrt(cloglog_varx0))`)
 
-
+Comparing the three estimates of the median lethal dose, it appears that the logit and probit estimates and 90% confidence intervals are similar. The estimate of the median lethal dose for cloglog is higher and the confidence interval is wider than logit and probit.
 
 ## Problem 2
 
@@ -303,12 +272,6 @@ prob2_x0fit = (log(2/3) - prob2_beta0)/prob2_beta1
 # asymptotic variance
 prob2_varx0 = prob2_betacov[1,1]/(prob2_beta1^2) + prob2_betacov[2,2]*((prob2_beta0 - log(2/3))^2)/(prob2_beta1^4) -
               2*prob2_betacov[1,2]*(prob2_beta0 - log(2/3))/(prob2_beta1^3)
-
-# point estimate and se 
-c(prob2_x0fit, sqrt(prob2_varx0))
-
-# 95% CI 
-(prob2_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(prob2_varx0))
 ```
 
 The point estimate for scholarship amount to provide to get 40% yield rate is \$`r format(prob2_x0fit, scientific = FALSE)` with a 95% CI of (\$`r format(prob2_x0fit + qnorm(0.025)*sqrt(prob2_varx0), scientific = FALSE)`, \$`r format(prob2_x0fit - qnorm(0.025)*sqrt(prob2_varx0), scientific = FALSE)`)

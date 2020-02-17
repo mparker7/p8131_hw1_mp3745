@@ -12,7 +12,7 @@
 
 <meta name="author" content="Matthew Parker" />
 
-<meta name="date" content="2020-02-13" />
+<meta name="date" content="2020-02-17" />
 
 <title>p8105_hw3_mp3745</title>
 
@@ -365,7 +365,7 @@ summary {
 
 <h1 class="title toc-ignore">p8105_hw3_mp3745</h1>
 <h4 class="author">Matthew Parker</h4>
-<h4 class="date">2020-02-13</h4>
+<h4 class="date">2020-02-17</h4>
 
 </div>
 
@@ -374,8 +374,8 @@ summary {
 <h2>PROBLEM 1</h2>
 <div id="i" class="section level3">
 <h3>i)</h3>
-<p>Create dataframe</p>
-<pre class="r"><code># Covariates
+<p>Enter data</p>
+<pre class="r"><code># Covariate
 dose = 0:4
 
 # Response
@@ -384,92 +384,24 @@ resp = tibble(
   num_total = 30 - num_dead
 ) %&gt;% 
   as.matrix() </code></pre>
-<p>Logistic models with grouped data (get estimate of beta and deviance)</p>
+<p>Logistic models with grouped data</p>
 <pre class="r"><code># Logit
 fit_logit = 
   glm(resp ~ dose, 
       family = binomial(link = 'logit'))
 
-summary(fit_logit) </code></pre>
-<pre><code>## 
-## Call:
-## glm(formula = resp ~ dose, family = binomial(link = &quot;logit&quot;))
-## 
-## Deviance Residuals: 
-##       1        2        3        4        5  
-## -0.4510   0.3597   0.0000   0.0643  -0.2045  
-## 
-## Coefficients:
-##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  -2.3238     0.4179  -5.561 2.69e-08 ***
-## dose          1.1619     0.1814   6.405 1.51e-10 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## (Dispersion parameter for binomial family taken to be 1)
-## 
-##     Null deviance: 64.76327  on 4  degrees of freedom
-## Residual deviance:  0.37875  on 3  degrees of freedom
-## AIC: 20.854
-## 
-## Number of Fisher Scoring iterations: 4</code></pre>
-<pre class="r"><code># Probit
+
+# Probit
 fit_probit = 
   glm(resp ~ dose, 
       family = binomial(link = 'probit'))
 
-summary(fit_probit)</code></pre>
-<pre><code>## 
-## Call:
-## glm(formula = resp ~ dose, family = binomial(link = &quot;probit&quot;))
-## 
-## Deviance Residuals: 
-##        1         2         3         4         5  
-## -0.35863   0.27493   0.01893   0.18230  -0.27545  
-## 
-## Coefficients:
-##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept) -1.37709    0.22781  -6.045 1.49e-09 ***
-## dose         0.68638    0.09677   7.093 1.31e-12 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## (Dispersion parameter for binomial family taken to be 1)
-## 
-##     Null deviance: 64.76327  on 4  degrees of freedom
-## Residual deviance:  0.31367  on 3  degrees of freedom
-## AIC: 20.789
-## 
-## Number of Fisher Scoring iterations: 4</code></pre>
-<pre class="r"><code># cloglog
+
+# cloglog
 fit_cloglog = 
   glm(resp ~ dose, 
-      family = binomial(link = 'cloglog'))
-
-summary(fit_cloglog)</code></pre>
-<pre><code>## 
-## Call:
-## glm(formula = resp ~ dose, family = binomial(link = &quot;cloglog&quot;))
-## 
-## Deviance Residuals: 
-##       1        2        3        4        5  
-## -1.0831   0.2132   0.4985   0.5588  -0.6716  
-## 
-## Coefficients:
-##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  -1.9942     0.3126  -6.378 1.79e-10 ***
-## dose          0.7468     0.1094   6.824 8.86e-12 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## (Dispersion parameter for binomial family taken to be 1)
-## 
-##     Null deviance: 64.7633  on 4  degrees of freedom
-## Residual deviance:  2.2305  on 3  degrees of freedom
-## AIC: 22.706
-## 
-## Number of Fisher Scoring iterations: 5</code></pre>
-<p>Confidence intervals</p>
+      family = binomial(link = 'cloglog'))</code></pre>
+<p>95% confidence intervals</p>
 <pre class="r"><code># logit
 ci_logit = fit_logit %&gt;% 
   broom::tidy() %&gt;% 
@@ -551,7 +483,7 @@ pred_cloglog = predict(fit_cloglog, newdata = newdata, type = &quot;response&quo
 </tr>
 </tbody>
 </table>
-<p>The logit model has the highest estimate for β, with the probit model having the lowest. All estimates of β are positive, which means the risk of dying increases with dose. For the logit model, the interpretation is that the log odds ratio per 1 unit change in dose is 1.1619. All three confidence intervals do not contain zero, which further suggests the risk of dying increases with dose. The probit model had the smallest deviance and the c-log-log model had the highest deviance. This suggests that the logit and probit models may fit the data better. All three models provide similar estimates for the probability of dying given the dose is 0.01, but the c-log-log model has the highest estimate at 0.13.</p>
+<p>The logit model has the highest estimate for β, with the probit model having the lowest. All estimates of β are positive, which means the risk of dying increases with dose. For the logit model, the interpretation is a 1 unit increase in dose causes the log odds of dying to increase by 1.1618949. All three 95% confidence intervals do not contain zero, which further suggests the risk of dying increases with dose. The probit model had the smallest deviance and the c-log-log model had the highest deviance. This suggests that the logit and probit models may fit the data better. All three models provide similar estimates for the probability of dying given the dose is 0.01, but the c-log-log model has the highest estimate at 0.1281601.</p>
 </div>
 <div id="ii" class="section level3">
 <h3>ii)</h3>
@@ -567,22 +499,10 @@ logit_betacov = vcov(fit_logit)
 # point estimate of ln(LD50)
 logit_x0fit = -logit_beta0/logit_beta1
 
-# point estimate of LD50
-exp(logit_x0fit) </code></pre>
-<pre><code>## (Intercept) 
-##    7.389056</code></pre>
-<pre class="r"><code># asymptotic variance
+# asymptotic variance
 logit_varx0 = logit_betacov[1,1]/(logit_beta1^2) + logit_betacov[2,2]*(logit_beta0^2)/(logit_beta1^4) -
-              2*logit_betacov[1,2]*logit_beta0/(logit_beta1^3)
-
-# point estimate and se for ln(dose)
-c(logit_x0fit, sqrt(logit_varx0))</code></pre>
-<pre><code>## (Intercept)        dose 
-##   2.0000000   0.1784367</code></pre>
-<pre class="r"><code># 95% CI for LD50
-exp((logit_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(logit_varx0))) </code></pre>
-<pre><code>## [1]  5.208388 10.482734</code></pre>
-<p>The point estimate for LD50 is 7.3890561 with a 95% CI of (5.2083884, 10.482734)</p>
+              2*logit_betacov[1,2]*logit_beta0/(logit_beta1^3)</code></pre>
+<p>The point estimate for LD50 (median lethal dose) is 7.3890561 with a 90% CI of (5.5096315, 9.909583)</p>
 </div>
 <div id="probit" class="section level4">
 <h4>Probit</h4>
@@ -596,22 +516,10 @@ probit_betacov = vcov(fit_probit)
 # point estimate of ln(LD50)
 probit_x0fit = -probit_beta0/probit_beta1
 
-# point estimate of LD50
-exp(probit_x0fit) </code></pre>
-<pre><code>## (Intercept) 
-##     7.43583</code></pre>
-<pre class="r"><code># asymptotic variance
+# asymptotic variance
 probit_varx0 = probit_betacov[1,1]/(probit_beta1^2) + probit_betacov[2,2]*(probit_beta0^2)/(probit_beta1^4) -
-              2*probit_betacov[1,2]*probit_beta0/(probit_beta1^3)
-
-# point estimate and se for ln(dose)
-c(probit_x0fit, sqrt(probit_varx0))</code></pre>
-<pre><code>## (Intercept)        dose 
-##   2.0063102   0.1742755</code></pre>
-<pre class="r"><code># 95% CI for LD50
-exp((probit_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(probit_varx0))) </code></pre>
-<pre><code>## [1]  5.284281 10.463405</code></pre>
-<p>The point estimate for LD50 is 7.4358301 with a 95% CI of (5.2842806, 10.4634053)</p>
+              2*probit_betacov[1,2]*probit_beta0/(probit_beta1^3)</code></pre>
+<p>The point estimate for LD50 is 7.4358301 with a 90% CI of (5.5825882, 9.9042894)</p>
 </div>
 <div id="cloglog" class="section level4">
 <h4>Cloglog</h4>
@@ -625,23 +533,12 @@ cloglog_betacov = vcov(fit_cloglog)
 # point estimate of ln(LD50)
 cloglog_x0fit = (log(-log(0.5)) - cloglog_beta0)/cloglog_beta1
 
-# point estimate of LD50
-exp(cloglog_x0fit) </code></pre>
-<pre><code>## (Intercept) 
-##    8.841249</code></pre>
-<pre class="r"><code># asymptotic variance
+# asymptotic variance
 cloglog_varx0 = cloglog_betacov[1,1]/(cloglog_beta1^2) + 
               cloglog_betacov[2,2]*((cloglog_beta0 - log(-log(0.5)))^2)/(cloglog_beta1^4) -
-              2*cloglog_betacov[1,2]*(cloglog_beta0 - log(-log(0.5)))/(cloglog_beta1^3)
-
-# point estimate and se for ln(dose)
-c(cloglog_x0fit, sqrt(cloglog_varx0))</code></pre>
-<pre><code>## (Intercept)        dose 
-##   2.1794281   0.1845721</code></pre>
-<pre class="r"><code># 95% CI for LD50
-exp((cloglog_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(cloglog_varx0))) </code></pre>
-<pre><code>## [1]  6.157517 12.694677</code></pre>
-<p>The point estimate for LD50 is 8.8412489 with a 95% CI of (6.1575167, 12.6946765)</p>
+              2*cloglog_betacov[1,2]*(cloglog_beta0 - log(-log(0.5)))/(cloglog_beta1^3)</code></pre>
+<p>The point estimate for LD50 is 8.8412489 with a 90% CI of (6.5262606, 11.9774075)</p>
+<p>Comparing the three estimates of the median lethal dose, it appears that the logit and probit estimates and 90% confidence intervals are similar. The estimate of the median lethal dose for cloglog is higher and the confidence interval is wider than logit and probit.</p>
 </div>
 </div>
 </div>
@@ -735,15 +632,7 @@ prob2_x0fit = (log(2/3) - prob2_beta0)/prob2_beta1
 
 # asymptotic variance
 prob2_varx0 = prob2_betacov[1,1]/(prob2_beta1^2) + prob2_betacov[2,2]*((prob2_beta0 - log(2/3))^2)/(prob2_beta1^4) -
-              2*prob2_betacov[1,2]*(prob2_beta0 - log(2/3))/(prob2_beta1^3)
-
-# point estimate and se 
-c(prob2_x0fit, sqrt(prob2_varx0))</code></pre>
-<pre><code>## (Intercept)      amount 
-##   40134.286    4873.174</code></pre>
-<pre class="r"><code># 95% CI 
-(prob2_x0fit + c(qnorm(0.025), -qnorm(0.025))*sqrt(prob2_varx0))</code></pre>
-<pre><code>## [1] 30583.04 49685.53</code></pre>
+              2*prob2_betacov[1,2]*(prob2_beta0 - log(2/3))/(prob2_beta1^3)</code></pre>
 <p>The point estimate for scholarship amount to provide to get 40% yield rate is $40134.29 with a 95% CI of ($30583.04, $49685.53)</p>
 </div>
 
